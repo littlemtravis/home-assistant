@@ -1,0 +1,114 @@
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+homeassistant:
+  customize: !include customize.yaml
+
+logger:
+  default: warning
+  logs:
+    homeassistant.components.mqtt: debug
+
+# Text to speech
+tts:
+  # - platform: google_translate
+
+mobile_app:
+
+ios:
+  actions:
+    - name: spa_heater_on
+      background_color: "#000000"
+      label:
+        text: "Turn On Spa & Heater"
+        color: "#ff0000"
+      icon:
+        icon: hot-tub
+        color: "#ffffff"
+
+stream:
+
+tplink:
+  discovery: false
+  switch:
+    - host: {TPLINK_IP}
+    - host: {TPLINK_IP}
+    - host: {TPLINK_IP}
+
+binary_sensor:
+  platform: mqtt
+  name: "Backyard Motion"
+  device_class: motion
+  state_topic: "BI/AI/reolinkhd"
+  payload_on: "on"
+  off_delay: 30
+
+cover:
+  - platform: mqtt
+    name: "Garage Door Main"
+    state_topic: "shellies/garage_door_main/input/0"
+    command_topic: "shellies/garage_door_main/relay/0/command"
+    availability_topic: "shellies/garage_door_main/online"
+    retain: false
+    payload_open: "on"
+    payload_close: "on"
+    payload_stop: "on"
+    state_open: "1"
+    state_closed: "0"
+    payload_available: "true"
+    payload_not_available: "false"
+    tilt_opened_value: 0
+  - platform: mqtt
+    name: "Garage Door Secondary"
+    state_topic: "shellies/garage_door_secondary/input/0"
+    command_topic: "shellies/garage_door_secondary/relay/0/command"
+    availability_topic: "shellies/garage_door_secondary/online"
+    retain: false
+    payload_open: "on"
+    payload_close: "on"
+    payload_stop: "on"
+    state_open: "1"
+    state_closed: "0"
+    payload_available: "true"
+    payload_not_available: "false"
+    tilt_opened_value: 0
+
+proximity:
+  home_brook:
+    zone: home
+    devices:
+      - device_tracker.life360_brook_little
+    tolerance: 1
+    unit_of_measurement: mi
+  home_travis:
+    zone: home
+    devices:
+      - device_tracker.life360_travis_little
+    tolerance: 1
+    unit_of_measurement: mi
+
+rest_command:
+  set_pool_entity:
+    url: http://{AQUA_CONNECT_IP}/api/aquaConnect
+    method: post
+    headers:
+      host: "{HOST_HEADER}"
+      accept: "application/json, text/html"
+      user-agent: "Mozilla/5.0 {{ useragent }}"
+    payload: '{ "entity": "{{ entity }}", "state": "{{ state }}" }'
+    content_type: "application/json"
+
+# Example configuration.yaml entry
+input_boolean:
+  pool_automation:
+    name: Pool Automation
+    initial: true
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+camera: !include cameras.yaml
+sensor: !include sensor.yaml
+light: !include light.yaml
+switch: !include switches.yaml
